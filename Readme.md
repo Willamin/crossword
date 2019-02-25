@@ -11,6 +11,7 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 ## Future Features
 
 - symmetry options for painting
+- adjust the size of the grid
 - automatically calculate the following statistics:
     - across quantity
     - down quantity
