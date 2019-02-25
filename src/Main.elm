@@ -38,8 +38,8 @@ type Msg
     | Empty Int Int
 
 
-changeCellAt : List (List Cell) -> Int -> Int -> Cell -> List (List Cell)
-changeCellAt grid xIndex yIndex newCell =
+changeCellAt : ( Int, Int ) -> Cell -> List (List Cell) -> List (List Cell)
+changeCellAt ( xIndex, yIndex ) newCell grid =
     grid
         |> List.indexedMap
             (\x row ->
@@ -55,16 +55,27 @@ changeCellAt grid xIndex yIndex newCell =
             )
 
 
+symmetry180Change : ( Int, Int ) -> Cell -> List (List Cell) -> List (List Cell)
+symmetry180Change ( x, y ) newCell grid =
+    changeCellAt ( constants.width - x - 1, constants.height - y - 1 ) newCell grid
+
+
 update msg model =
     case msg of
         Blacken xIndex yIndex ->
             { model
-                | squares = changeCellAt model.squares xIndex yIndex BlackCell
+                | squares =
+                    model.squares
+                        |> changeCellAt ( xIndex, yIndex ) BlackCell
+                        |> symmetry180Change ( xIndex, yIndex ) BlackCell
             }
 
         Empty xIndex yIndex ->
             { model
-                | squares = changeCellAt model.squares xIndex yIndex EmptyCell
+                | squares =
+                    model.squares
+                        |> changeCellAt ( xIndex, yIndex ) EmptyCell
+                        |> symmetry180Change ( xIndex, yIndex ) EmptyCell
             }
 
 
