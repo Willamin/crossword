@@ -7,10 +7,10 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 ## Features
 
 - ability to toggle cells between black and white
+- symmetry options for painting
 
 ## Future Features
 
-- symmetry options for painting
 - adjust the size of the grid
 - automatically calculate the following statistics:
     - across quantity
