@@ -3,7 +3,7 @@ module Main exposing (Cell(..), Model, Msg(..), cellRender, changeCellAt, css, i
 import Array
 import Browser
 import Html exposing (Html, button, div, table, td, text, tr)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, for, id, name, type_, value)
 import Html.Events exposing (onClick)
 
 
@@ -34,8 +34,12 @@ type alias Model =
     }
 
 
+emptyGrid =
+    List.repeat constants.height <| List.repeat constants.width EmptyCell
+
+
 init =
-    { squares = List.repeat constants.height <| List.repeat constants.width EmptyCell
+    { squares = emptyGrid
     , symmetry = Rotate180
     }
 
@@ -99,18 +103,34 @@ cellRender xIndex yIndex cell =
             td [ class "fillcell" ] [ text c ]
 
 
+radioGroup : List ( String, String, String ) -> List (Html Msg)
+radioGroup listofThings =
+    listofThings
+        |> List.map
+            (\( group, value_, label ) ->
+                [ Html.input [ type_ "radio", name group, value value_, id value_ ] []
+                , Html.label [ for value_, class "forRadio" ] [ text label ]
+                ]
+            )
+        |> List.foldr (++) []
+
+
 view model =
-    div
-        []
+    div []
         [ Html.node "style" [] [ text css ]
-        , table
-            []
+        , table []
             (model.squares
                 |> List.indexedMap
                     (\x row ->
                         tr []
                             (row |> List.indexedMap (cellRender x))
                     )
+            )
+        , div []
+            (radioGroup
+                [ ( "symmetry", "symmetryNone", "No symmetry" )
+                , ( "symmetry", "symmetryRotate180", "Rotational symmetry 180º" )
+                ]
             )
         ]
 
@@ -131,9 +151,27 @@ table, tr, td {
 td {
     width: 2em;
     height: 2em;
+    cursor: pointer;
 }
 
 td.blackcell {
     background-color: #222;
+}
+
+input[type=radio] {
+    display: none;
+}
+
+label.forRadio {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.5em;
+    margin-top: 1em;
+    margin-right: 1em;
+    border: 1px solid #444;
+}
+
+input[type=radio]:checked + label.forRadio {
+    background-color: lightgray;
 }
 """
