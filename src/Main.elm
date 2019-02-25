@@ -23,13 +23,20 @@ type Cell
     | Just String
 
 
+type SymmetryMode
+    = Rotate180
+    | None
+
+
 type alias Model =
     { squares : List (List Cell)
+    , symmetry : SymmetryMode
     }
 
 
 init =
     { squares = List.repeat constants.height <| List.repeat constants.width EmptyCell
+    , symmetry = Rotate180
     }
 
 
@@ -60,23 +67,23 @@ symmetry180Change ( x, y ) newCell grid =
     changeCellAt ( constants.width - x - 1, constants.height - y - 1 ) newCell grid
 
 
+updateGrid : ( Int, Int ) -> Cell -> Model -> Model
+updateGrid ( x, y ) newCell model =
+    { model
+        | squares =
+            model.squares
+                |> changeCellAt ( x, y ) newCell
+                |> symmetry180Change ( x, y ) newCell
+    }
+
+
 update msg model =
     case msg of
-        Blacken xIndex yIndex ->
-            { model
-                | squares =
-                    model.squares
-                        |> changeCellAt ( xIndex, yIndex ) BlackCell
-                        |> symmetry180Change ( xIndex, yIndex ) BlackCell
-            }
+        Blacken x y ->
+            model |> updateGrid ( x, y ) BlackCell
 
-        Empty xIndex yIndex ->
-            { model
-                | squares =
-                    model.squares
-                        |> changeCellAt ( xIndex, yIndex ) EmptyCell
-                        |> symmetry180Change ( xIndex, yIndex ) EmptyCell
-            }
+        Empty x y ->
+            model |> updateGrid ( x, y ) BlackCell
 
 
 cellRender : Int -> Int -> Cell -> Html Msg
