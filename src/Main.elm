@@ -3,7 +3,7 @@ module Main exposing (Cell(..), Model, Msg(..), cellRender, changeCellAt, css, i
 import Array
 import Browser
 import Html exposing (Html, button, div, table, td, text, tr)
-import Html.Attributes exposing (class, for, id, name, type_, value)
+import Html.Attributes exposing (class, classList, for, id, name, type_, value)
 import Html.Events exposing (onClick)
 
 
@@ -25,7 +25,7 @@ type Cell
 
 type SymmetryMode
     = Rotate180
-    | None
+    | NoSymmetry
 
 
 type alias Model =
@@ -47,6 +47,7 @@ init =
 type Msg
     = Blacken Int Int
     | Empty Int Int
+    | ChangeSymmetry SymmetryMode
 
 
 changeCellAt : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
@@ -75,9 +76,15 @@ updateGrid : Int -> Int -> Cell -> Model -> Model
 updateGrid x y newCell model =
     { model
         | squares =
-            model.squares
-                |> changeCellAt x y newCell
-                |> symmetry180Change x y newCell
+            case model.symmetry of
+                NoSymmetry ->
+                    model.squares
+                        |> changeCellAt x y newCell
+
+                Rotate180 ->
+                    model.squares
+                        |> changeCellAt x y newCell
+                        |> symmetry180Change x y newCell
     }
 
 
@@ -87,7 +94,10 @@ update msg model =
             model |> updateGrid x y BlackCell
 
         Empty x y ->
-            model |> updateGrid x y BlackCell
+            model |> updateGrid x y EmptyCell
+
+        ChangeSymmetry newMode ->
+            { model | symmetry = newMode }
 
 
 cellRender : Int -> Int -> Cell -> Html Msg
@@ -103,18 +113,6 @@ cellRender xIndex yIndex cell =
             td [ class "fillcell" ] [ text c ]
 
 
-radioGroup : List ( String, String, String ) -> List (Html Msg)
-radioGroup listofThings =
-    listofThings
-        |> List.map
-            (\( group, value_, label ) ->
-                [ Html.input [ type_ "radio", name group, value value_, id value_ ] []
-                , Html.label [ for value_, class "forRadio" ] [ text label ]
-                ]
-            )
-        |> List.foldr (++) []
-
-
 view model =
     div []
         [ Html.node "style" [] [ text css ]
@@ -127,11 +125,9 @@ view model =
                     )
             )
         , div []
-            (radioGroup
-                [ ( "symmetry", "symmetryNone", "No symmetry" )
-                , ( "symmetry", "symmetryRotate180", "Rotational symmetry 180º" )
-                ]
-            )
+            [ div [ onClick (ChangeSymmetry NoSymmetry), classList [ ( "radio", True ), ( "checked", model.symmetry == NoSymmetry ) ] ] [ text "No symmetry" ]
+            , div [ onClick (ChangeSymmetry Rotate180), classList [ ( "radio", True ), ( "checked", model.symmetry == Rotate180 ) ] ] [ text "Rotational symmetry 180º" ]
+            ]
         ]
 
 
@@ -162,7 +158,7 @@ input[type=radio] {
     display: none;
 }
 
-label.forRadio {
+.radio {
     cursor: pointer;
     display: inline-block;
     padding: 0.5em;
@@ -171,7 +167,7 @@ label.forRadio {
     border: 1px solid #444;
 }
 
-input[type=radio]:checked + label.forRadio {
+.radio.checked {
     background-color: lightgray;
 }
 """
