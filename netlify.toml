@@ -1,5 +1,5 @@
 [build]
-  command = "./build.sh"
+  command = "./build.sh src/Grid.elm"
   publish = "build"
 
 [[redirects]]
