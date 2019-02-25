@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Events
 import Debug
-import Html exposing (Html, h1, button, div, table, td, text, tr)
+import Html exposing (Html, button, div, h1, table, td, text, tr)
 import Html.Attributes exposing (class, classList, for, id, name, type_, value)
 import Html.Events exposing (onClick, onMouseEnter)
 import Json.Decode as Decode
@@ -61,7 +61,7 @@ type Msg
     | ChangeSymmetry SymmetryMode
     | Write String
     | WriteEmpty
-    | Over Int Int 
+    | Over Int Int
 
 
 keyDecoder : Decode.Decoder Msg
@@ -111,20 +111,20 @@ updateGrid x y newCell model =
     { model
         | squares =
             case newCell of
-            FillCell _ ->
-                model.squares
-                    |> changeCellAt x y newCell
+                FillCell _ ->
+                    model.squares
+                        |> changeCellAt x y newCell
 
-            _ ->
-                case model.symmetry of
-                    NoSymmetry ->
-                        model.squares
-                            |> changeCellAt x y newCell
+                _ ->
+                    case model.symmetry of
+                        NoSymmetry ->
+                            model.squares
+                                |> changeCellAt x y newCell
 
-                    Rotate180 ->
-                        model.squares
-                            |> changeCellAt x y newCell
-                            |> symmetry180Change x y newCell
+                        Rotate180 ->
+                            model.squares
+                                |> changeCellAt x y newCell
+                                |> symmetry180Change x y newCell
     }
 
 
@@ -144,7 +144,7 @@ update msg model =
             ( model |> updateGrid model.overX model.overY (FillCell string), Cmd.none )
 
         Over x y ->
-            ({ model | overX = x, overY = y }, Cmd.none)
+            ( { model | overX = x, overY = y }, Cmd.none )
 
         WriteEmpty ->
             ( model |> updateGrid model.overX model.overY EmptyCell, Cmd.none )
@@ -154,19 +154,19 @@ cellRender : Model -> Int -> Int -> Cell -> Html Msg
 cellRender model x y cell =
     case cell of
         BlackCell ->
-            td [ class "blackCell", onClick (Empty x y), onMouseEnter (Over x y)] []
+            td [ class "blackCell", onClick (Empty x y), onMouseEnter (Over x y) ] []
 
         EmptyCell ->
-            td [ class "emptyCell", onClick (Blacken x y), onMouseEnter (Over x y)] []
+            td [ class "emptyCell", onClick (Blacken x y), onMouseEnter (Over x y) ] []
 
         FillCell c ->
-            td [ class "fillCell", onMouseEnter (Over x y)] [ text c ]
+            td [ class "fillCell", onMouseEnter (Over x y) ] [ text c ]
 
 
 view model =
     div []
         [ Html.node "style" [] [ text css ]
-        , h1 [] [ text "Crossword Helper"]
+        , h1 [] [ text "Crossword Helper" ]
         , table []
             (model.squares
                 |> List.indexedMap
@@ -187,7 +187,7 @@ css =
     """
 body {
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     font-family: sans-serif
 }
 
