@@ -35,8 +35,7 @@ type SymmetryMode
 type alias Model =
     { squares : List (List Cell)
     , symmetry : SymmetryMode
-    , overX : Int
-    , overY : Int
+    , over : Position
     }
 
 
@@ -48,8 +47,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { squares = emptyGrid
       , symmetry = Rotate180
-      , overX = 0
-      , overY = 0
+      , over = NoCoord
       }
     , Cmd.none
     )
@@ -130,18 +128,12 @@ updateGrid x y newCell model =
                             model.squares
                                 |> changeCellAt x y newCell
                                 |> symmetry180Change x y newCell
-        , overX =
+        , over =
             if newCell == BlackCell then
-                -1
+                NoCoord
 
             else
-                model.overX
-        , overY =
-            if newCell == BlackCell then
-                -1
-
-            else
-                model.overY
+                model.over
     }
 
 
@@ -158,18 +150,21 @@ update msg model =
             ( { model | symmetry = newSymmetry }, Cmd.none )
 
         Write string ->
-            ( model |> updateGrid model.overX model.overY (FillCell string), Cmd.none )
+            case model.over of
+                NoCoord ->
+                    (model, Cmd.none)
+                Coord x y ->
+                    ( model |> updateGrid x y (FillCell string), Cmd.none )
 
         Over coord ->
-            case coord of
-                Coord x y ->
-                    ( { model | overX = x, overY = y }, Cmd.none )
-
-                NoCoord ->
-                    ( { model | overX = -1, overY = -1 }, Cmd.none )
+            ( { model | over = coord }, Cmd.none )
 
         WriteEmpty ->
-            ( model |> updateGrid model.overX model.overY EmptyCell, Cmd.none )
+            case model.over of
+                NoCoord ->
+                    (model, Cmd.none)
+                Coord x y ->
+                    ( model |> updateGrid x y EmptyCell, Cmd.none )
 
 
 cellRender : Model -> Int -> Int -> Cell -> Html Msg
