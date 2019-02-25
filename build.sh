@@ -2,6 +2,8 @@
 
 set -e
 
+echo "DEBUGGING"
+
 env
 
 exit 1
