@@ -45,8 +45,8 @@ type Msg
     | Empty Int Int
 
 
-changeCellAt : ( Int, Int ) -> Cell -> List (List Cell) -> List (List Cell)
-changeCellAt ( xIndex, yIndex ) newCell grid =
+changeCellAt : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
+changeCellAt xIndex yIndex newCell grid =
     grid
         |> List.indexedMap
             (\x row ->
@@ -62,28 +62,28 @@ changeCellAt ( xIndex, yIndex ) newCell grid =
             )
 
 
-symmetry180Change : ( Int, Int ) -> Cell -> List (List Cell) -> List (List Cell)
-symmetry180Change ( x, y ) newCell grid =
-    changeCellAt ( constants.width - x - 1, constants.height - y - 1 ) newCell grid
+symmetry180Change : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
+symmetry180Change x y newCell grid =
+    changeCellAt (constants.width - x - 1) (constants.height - y - 1) newCell grid
 
 
-updateGrid : ( Int, Int ) -> Cell -> Model -> Model
-updateGrid ( x, y ) newCell model =
+updateGrid : Int -> Int -> Cell -> Model -> Model
+updateGrid x y newCell model =
     { model
         | squares =
             model.squares
-                |> changeCellAt ( x, y ) newCell
-                |> symmetry180Change ( x, y ) newCell
+                |> changeCellAt x y newCell
+                |> symmetry180Change x y newCell
     }
 
 
 update msg model =
     case msg of
         Blacken x y ->
-            model |> updateGrid ( x, y ) BlackCell
+            model |> updateGrid x y BlackCell
 
         Empty x y ->
-            model |> updateGrid ( x, y ) BlackCell
+            model |> updateGrid x y BlackCell
 
 
 cellRender : Int -> Int -> Cell -> Html Msg
