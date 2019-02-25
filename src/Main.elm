@@ -11,6 +11,12 @@ main =
     Browser.sandbox { init = init, update = update, view = view }
 
 
+constants =
+    { width = 15
+    , height = 15
+    }
+
+
 type Cell
     = BlackCell
     | EmptyCell
@@ -23,7 +29,7 @@ type alias Model =
 
 
 init =
-    { squares = List.repeat 15 <| List.repeat 15 EmptyCell
+    { squares = List.repeat constants.width <| List.repeat constants.height EmptyCell
     }
 
 
