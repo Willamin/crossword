@@ -8,6 +8,7 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 
 - ability to toggle cells between black and white
 - symmetry options for painting
+- fill in letters (no rebus)
 
 ## Future Features
 
@@ -17,8 +18,6 @@ a set of tooling to help construct a NYT-style crossword puzzle.
     - down quantity
     - quantity per length
     - indication of invalid word lengths (1 or 2)
-- toggle between painting mode and filling mode
-- fill in letters (no rebus)
 - fill in rebuses
 - encircle spaces
 - import/export to text
