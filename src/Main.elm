@@ -20,7 +20,7 @@ constants =
 type Cell
     = BlackCell
     | EmptyCell
-    | Just String
+    | Fill String
 
 
 type SymmetryMode
@@ -96,21 +96,21 @@ update msg model =
         Empty x y ->
             model |> updateGrid x y EmptyCell
 
-        ChangeSymmetry newMode ->
-            { model | symmetry = newMode }
+        ChangeSymmetry newSymmetry ->
+            { model | symmetry = newSymmetry }
 
 
-cellRender : Int -> Int -> Cell -> Html Msg
-cellRender xIndex yIndex cell =
+cellRender : Model -> Int -> Int -> Cell -> Html Msg
+cellRender model x y cell =
     case cell of
         BlackCell ->
-            td [ class "blackCell", onClick (Empty xIndex yIndex) ] []
+            td [ class "blackCell", onClick (Empty x y) ] []
 
         EmptyCell ->
-            td [ classList [ ( "emptyCell", True ), ( "redCell", False ), ( "greenCell", False ) ], onClick (Blacken xIndex yIndex) ] []
+            td [ class "emptyCell", onClick (Blacken x y) ] []
 
-        Just c ->
-            td [ classList [ ( "fillCell", True ), ( "redCell", False ), ( "greenCell", False ) ] ] [ text c ]
+        Fill c ->
+            td [ class "fillCell" ] [ text c ]
 
 
 view model =
@@ -121,7 +121,7 @@ view model =
                 |> List.indexedMap
                     (\x row ->
                         tr []
-                            (row |> List.indexedMap (cellRender x))
+                            (row |> List.indexedMap (cellRender model x))
                     )
             )
         , div []
@@ -140,20 +140,25 @@ body {
 }
 
 table, tr, td {
-  border: 1px solid black;
   border-collapse: collapse;
 }
 
 td {
-    width: 2em;
-    height: 2em;
+    border: 1px solid black;
+    width: 2.2em;
+    height: 2.2em;
     cursor: pointer;
     display: table-cell;
     vertical-align: center;
     text-align: center;
+    box-sizing: border-box;
 }
 
-td.blackCell {
+td:hover {
+    border-width: 2px;
+}
+
+.blackCell {
     background-color: #222;
 }
 
@@ -179,6 +184,6 @@ input[type=radio] {
 }
 
 .radio.checked {
-    background-color: lightgray;
+    background-color: #eee;
 }
 """
