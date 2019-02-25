@@ -1,5 +1,7 @@
 # Crossword Helper
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/6eba296d-4a6e-4527-8e7c-fc4efd1fedf3/deploy-status)](https://app.netlify.com/sites/wfl-crossword/deploys)
+
 a set of tooling to help construct a NYT-style crossword puzzle.
 
 ## Features
