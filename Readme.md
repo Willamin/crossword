@@ -22,3 +22,5 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 - encircle spaces
 - import/export to text
 - save/load to localstorage
+- randomly generate valid grid
+- randomly generate partially-filled, valid grid when given a set of fill words
