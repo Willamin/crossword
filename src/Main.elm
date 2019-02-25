@@ -79,6 +79,11 @@ view model =
 css : String
 css =
     """
+body {
+    display: flex;
+    justify-content: center;    
+}
+
 table, tr, td {
   border: 1px solid black;
   border-collapse: collapse;
