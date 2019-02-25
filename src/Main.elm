@@ -21,34 +21,30 @@ init =
 type Msg =
     Blacken Int Int | Empty Int Int
 
+changeCellAt : List (List Cell) -> Int -> Int -> Cell -> List (List Cell)
+changeCellAt grid xIndex yIndex newCell =
+    grid
+        |> List.indexedMap
+            (\x row ->
+                row
+                    |> List.indexedMap
+                        (\y cell ->
+                            if x == xIndex && y == yIndex then
+                                newCell
+                            else
+                                cell
+                        )
+            )
 
 update msg model =
     case msg of
         Blacken xIndex yIndex ->
             { model 
-            | squares = model.squares
-                |> List.indexedMap (\x row ->
-                    row
-                    |> List.indexedMap (\y cell ->
-                        if (x == xIndex && y == yIndex) then
-                            BlackCell
-                        else
-                            cell
-                    )
-                )
+            | squares = changeCellAt model.squares xIndex yIndex BlackCell
             }
         Empty xIndex yIndex -> 
             { model 
-            | squares = model.squares
-                |> List.indexedMap (\x row ->
-                    row
-                    |> List.indexedMap (\y cell ->
-                        if (x == xIndex && y == yIndex) then
-                            EmptyCell
-                        else
-                            cell
-                    )
-                )
+            | squares = changeCellAt model.squares xIndex yIndex EmptyCell
             }
 
 cellRender : Int -> Int -> Cell -> Html Msg
