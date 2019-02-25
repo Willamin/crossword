@@ -1,25 +1,36 @@
+module Main exposing (Cell(..), Model, Msg(..), cellRender, changeCellAt, css, init, main, update, view)
+
+import Array
 import Browser
-import Html exposing (Html, button, div, text, table, tr, td)
+import Html exposing (Html, button, div, table, td, text, tr)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
-import Array
+
 
 main =
     Browser.sandbox { init = init, update = update, view = view }
 
-type Cell =
-    BlackCell | EmptyCell | Just String
 
-type alias Model = 
+type Cell
+    = BlackCell
+    | EmptyCell
+    | Just String
+
+
+type alias Model =
     { squares : List (List Cell)
     }
 
-init = 
+
+init =
     { squares = List.repeat 15 <| List.repeat 15 EmptyCell
     }
 
-type Msg =
-    Blacken Int Int | Empty Int Int
+
+type Msg
+    = Blacken Int Int
+    | Empty Int Int
+
 
 changeCellAt : List (List Cell) -> Int -> Int -> Cell -> List (List Cell)
 changeCellAt grid xIndex yIndex newCell =
@@ -31,45 +42,53 @@ changeCellAt grid xIndex yIndex newCell =
                         (\y cell ->
                             if x == xIndex && y == yIndex then
                                 newCell
+
                             else
                                 cell
                         )
             )
 
+
 update msg model =
     case msg of
         Blacken xIndex yIndex ->
-            { model 
-            | squares = changeCellAt model.squares xIndex yIndex BlackCell
-            }
-        Empty xIndex yIndex -> 
-            { model 
-            | squares = changeCellAt model.squares xIndex yIndex EmptyCell
+            { model
+                | squares = changeCellAt model.squares xIndex yIndex BlackCell
             }
 
+        Empty xIndex yIndex ->
+            { model
+                | squares = changeCellAt model.squares xIndex yIndex EmptyCell
+            }
+
+
 cellRender : Int -> Int -> Cell -> Html Msg
-cellRender xIndex yIndex cell = 
+cellRender xIndex yIndex cell =
     case cell of
         EmptyCell ->
             td [ class "emptycell", onClick (Blacken xIndex yIndex) ] []
+
         BlackCell ->
             td [ class "blackcell", onClick (Empty xIndex yIndex) ] []
+
         Just c ->
             td [ class "fillcell" ] [ text c ]
 
+
 view model =
-    div 
-    [] 
-    [ Html.node "style" [] [ text css ]
-    , table
+    div
         []
-        (model.squares
-            |> List.indexedMap ( \x row -> 
-                tr [] 
-                ( row |> List.indexedMap (cellRender x)  )
+        [ Html.node "style" [] [ text css ]
+        , table
+            []
+            (model.squares
+                |> List.indexedMap
+                    (\x row ->
+                        tr []
+                            (row |> List.indexedMap (cellRender x))
+                    )
             )
-        )
-    ]
+        ]
 
 
 css : String
