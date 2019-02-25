@@ -10,6 +10,7 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 
 ## Future Features
 
+- symmetry options for painting
 - automatically calculate the following statistics:
     - across quantity
     - down quantity
