@@ -29,7 +29,7 @@ type alias Model =
 
 
 init =
-    { squares = List.repeat constants.width <| List.repeat constants.height EmptyCell
+    { squares = List.repeat constants.height <| List.repeat constants.width EmptyCell
     }
 
 
