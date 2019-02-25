@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Events
 import Debug
-import Html exposing (Html, button, div, table, td, text, tr)
+import Html exposing (Html, h1, button, div, table, td, text, tr)
 import Html.Attributes exposing (class, classList, for, id, name, type_, value)
 import Html.Events exposing (onClick, onMouseEnter)
 import Json.Decode as Decode
@@ -166,6 +166,7 @@ cellRender model x y cell =
 view model =
     div []
         [ Html.node "style" [] [ text css ]
+        , h1 [] [ text "Crossword Helper"]
         , table []
             (model.squares
                 |> List.indexedMap
@@ -186,7 +187,12 @@ css =
     """
 body {
     display: flex;
-    justify-content: center;    
+    justify-content: center; 
+    font-family: sans-serif
+}
+
+h1 {
+    text-align: center;
 }
 
 table, tr, td {
@@ -202,6 +208,7 @@ td {
     vertical-align: center;
     text-align: center;
     box-sizing: border-box;
+    font-size: 1.2em;
 }
 
 td:hover {
