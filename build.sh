@@ -6,6 +6,10 @@ echo "DEBUGGING"
 
 env
 
+echo "PATH: $PATH"
+
+sleep 2
+
 exit 1
 
 js="build/elm.js"
