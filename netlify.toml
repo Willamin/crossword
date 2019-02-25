@@ -1,5 +1,5 @@
 [build]
-  command = "elm make src/Grid.elm --optimize --output=build/index.html"
+  command = "./build.sh"
   publish = "build"
 
 [[redirects]]
