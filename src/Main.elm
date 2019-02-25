@@ -103,14 +103,14 @@ update msg model =
 cellRender : Int -> Int -> Cell -> Html Msg
 cellRender xIndex yIndex cell =
     case cell of
-        EmptyCell ->
-            td [ class "emptycell", onClick (Blacken xIndex yIndex) ] []
-
         BlackCell ->
-            td [ class "blackcell", onClick (Empty xIndex yIndex) ] []
+            td [ class "blackCell", onClick (Empty xIndex yIndex) ] []
+
+        EmptyCell ->
+            td [ classList [ ( "emptyCell", True ), ( "redCell", False ), ( "greenCell", False ) ], onClick (Blacken xIndex yIndex) ] []
 
         Just c ->
-            td [ class "fillcell" ] [ text c ]
+            td [ classList [ ( "fillCell", True ), ( "redCell", False ), ( "greenCell", False ) ] ] [ text c ]
 
 
 view model =
@@ -148,10 +148,21 @@ td {
     width: 2em;
     height: 2em;
     cursor: pointer;
+    display: table-cell;
+    vertical-align: center;
+    text-align: center;
 }
 
-td.blackcell {
+td.blackCell {
     background-color: #222;
+}
+
+.greenCell {
+    background-color: #dfd;
+}
+
+.redCell {
+    background-color: #fdd;
 }
 
 input[type=radio] {
