@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Events
 import Debug
-import Html exposing (Html, button, div, h1, table, td, text, tr)
+import Html exposing (Html, button, div, h1, li, table, td, text, tr, ul)
 import Html.Attributes exposing (class, classList, for, id, name, type_, value)
 import Html.Events exposing (onClick, onMouseEnter)
 import Json.Decode as Decode
@@ -55,13 +55,18 @@ init _ =
     )
 
 
+type Position
+    = Coord Int Int
+    | NoCoord
+
+
 type Msg
     = Blacken Int Int
     | Empty Int Int
     | ChangeSymmetry SymmetryMode
     | Write String
     | WriteEmpty
-    | Over Int Int
+    | Over Position
 
 
 keyDecoder : Decode.Decoder Msg
@@ -125,6 +130,18 @@ updateGrid x y newCell model =
                             model.squares
                                 |> changeCellAt x y newCell
                                 |> symmetry180Change x y newCell
+        , overX =
+            if newCell == BlackCell then
+                -1
+
+            else
+                model.overX
+        , overY =
+            if newCell == BlackCell then
+                -1
+
+            else
+                model.overY
     }
 
 
@@ -143,8 +160,13 @@ update msg model =
         Write string ->
             ( model |> updateGrid model.overX model.overY (FillCell string), Cmd.none )
 
-        Over x y ->
-            ( { model | overX = x, overY = y }, Cmd.none )
+        Over coord ->
+            case coord of
+                Coord x y ->
+                    ( { model | overX = x, overY = y }, Cmd.none )
+
+                NoCoord ->
+                    ( { model | overX = -1, overY = -1 }, Cmd.none )
 
         WriteEmpty ->
             ( model |> updateGrid model.overX model.overY EmptyCell, Cmd.none )
@@ -154,13 +176,13 @@ cellRender : Model -> Int -> Int -> Cell -> Html Msg
 cellRender model x y cell =
     case cell of
         BlackCell ->
-            td [ class "blackCell", onClick (Empty x y), onMouseEnter (Over x y) ] []
+            td [ class "blackCell", onClick (Empty x y), onMouseEnter (Over NoCoord) ] []
 
         EmptyCell ->
-            td [ class "emptyCell", onClick (Blacken x y), onMouseEnter (Over x y) ] []
+            td [ class "emptyCell", onClick (Blacken x y), onMouseEnter (Over <| Coord x y) ] []
 
         FillCell c ->
-            td [ class "fillCell", onMouseEnter (Over x y) ] [ text c ]
+            td [ class "fillCell", onMouseEnter (Over <| Coord x y) ] [ text c ]
 
 
 view model =
