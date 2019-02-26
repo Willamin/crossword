@@ -40,7 +40,7 @@ type alias Model =
 
 
 emptyGrid =
-    List.repeat constants.height <| List.repeat constants.width EmptyCell
+    List.repeat constants.width <| List.repeat constants.height EmptyCell
 
 
 init : () -> ( Model, Cmd Msg )
@@ -85,6 +85,17 @@ toKey string =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Browser.Events.onKeyPress keyDecoder
+
+
+getCellAt : Int -> Int -> List (List Cell) -> Cell
+getCellAt x y grid =
+    grid
+        |> Array.fromList
+        |> Array.get x
+        |> Maybe.withDefault []
+        |> Array.fromList
+        |> Array.get y
+        |> Maybe.withDefault EmptyCell
 
 
 changeCellAt : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
@@ -164,6 +175,23 @@ update msg model =
             ( model |> updateGrid model.over EmptyCell, Cmd.none )
 
 
+cellIsAtWordHead : List (List Cell) -> Position -> Bool
+cellIsAtWordHead grid pos =
+    case pos of
+        NoCoord ->
+            False
+
+        Coord x y ->
+            x
+                == 0
+                || y
+                == 0
+                || getCellAt (x - 1) y grid
+                == BlackCell
+                || getCellAt x (y - 1) grid
+                == BlackCell
+
+
 cellRender : Model -> Int -> Int -> Cell -> Html Msg
 cellRender model x y cell =
     let
@@ -175,10 +203,10 @@ cellRender model x y cell =
             td [ class "blackCell", onClick (Empty pos), onMouseEnter (Over NoCoord) ] []
 
         EmptyCell ->
-            td [ class "emptyCell", onClick (Blacken pos), onMouseEnter (Over <| pos) ] []
+            td [ class "emptyCell", classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ], onClick (Blacken pos), onMouseEnter (Over <| pos) ] []
 
         FillCell c ->
-            td [ class "fillCell", onMouseEnter (Over <| pos) ] [ text c ]
+            td [ class "fillCell", classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ], onMouseEnter (Over <| pos) ] [ text c ]
 
 
 view model =
