@@ -114,6 +114,7 @@ updateGrid pos newCell model =
     case pos of
         NoCoord ->
             model
+
         Coord x y ->
             { model
                 | squares =
@@ -165,7 +166,9 @@ update msg model =
 
 cellRender : Model -> Int -> Int -> Cell -> Html Msg
 cellRender model x y cell =
-    let pos = Coord x y
+    let
+        pos =
+            Coord x y
     in
     case cell of
         BlackCell ->
@@ -181,6 +184,7 @@ cellRender model x y cell =
 view model =
     div []
         [ Html.node "style" [] [ text css ]
+
         -- , h1 [] [ text "Crossword Helper" ]
         , table []
             (model.squares
