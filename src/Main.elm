@@ -332,7 +332,7 @@ td {
     vertical-align: center;
     text-align: center;
     box-sizing: border-box;
-    -- font-size: 1.2em;
+    font-size: 1.2em;
 }
 
 td:hover {
