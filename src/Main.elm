@@ -4,9 +4,9 @@ import Array
 import Browser
 import Browser.Events
 import Debug
-import Html exposing (Html, button, div, h1, li, pre, table, td, text, tr, ul)
-import Html.Attributes exposing (class, classList, for, id, name, type_, value)
-import Html.Events exposing (onClick, onMouseEnter)
+import Html exposing (Html, button, div, h1, input, li, pre, table, td, text, tr, ul)
+import Html.Attributes exposing (class, classList, contenteditable, for, id, name, type_, value)
+import Html.Events exposing (onClick, onInput, onMouseEnter, onMouseLeave)
 import Json.Decode as Decode
 import Platform.Sub as Sub exposing (Sub)
 
@@ -39,6 +39,16 @@ type alias Model =
     }
 
 
+split : Int -> List a -> List (List a)
+split i list =
+    case List.take i list of
+        [] ->
+            []
+
+        listHead ->
+            listHead :: split i (List.drop i list)
+
+
 emptyGrid =
     List.repeat constants.width <| List.repeat constants.height EmptyCell
 
@@ -65,6 +75,7 @@ type Msg
     | Write String
     | WriteEmpty
     | Over Position
+    | ParsePuzzle String
 
 
 keyDecoder : Decode.Decoder Msg
@@ -174,6 +185,13 @@ update msg model =
         WriteEmpty ->
             ( model |> updateGrid model.over EmptyCell, Cmd.none )
 
+        ParsePuzzle string ->
+            ( { model | squares = textToGrid string }, Cmd.none )
+
+
+
+-- ( model, Cmd.none )
+
 
 cellIsAtWordHead : List (List Cell) -> Position -> Bool
 cellIsAtWordHead grid pos =
@@ -232,12 +250,32 @@ gridToText grid =
         |> String.concat
 
 
+textToGrid : String -> List (List Cell)
+textToGrid string =
+    string
+        |> String.toList
+        |> List.take (constants.width * constants.height)
+        |> List.map
+            (\c ->
+                case c of
+                    '-' ->
+                        EmptyCell
+
+                    '!' ->
+                        BlackCell
+
+                    s ->
+                        FillCell <| String.fromChar s
+            )
+        |> split 15
+
+
 view model =
     div []
         [ Html.node "style" [] [ text css ]
 
         -- , h1 [] [ text "Crossword Helper" ]
-        , table []
+        , table [ onMouseLeave (Over NoCoord) ]
             (model.squares
                 |> List.indexedMap
                     (\x row ->
@@ -249,8 +287,9 @@ view model =
             [ div [ onClick (ChangeSymmetry NoSymmetry), classList [ ( "radio", True ), ( "checked", model.symmetry == NoSymmetry ) ] ] [ text "No symmetry" ]
             , div [ onClick (ChangeSymmetry Rotate180), classList [ ( "radio", True ), ( "checked", model.symmetry == Rotate180 ) ] ] [ text "Rotational symmetry 180º" ]
             ]
-        , pre []
-            [ text <| gridToText model.squares ]
+        , Html.textarea [ onInput ParsePuzzle ]
+            [ text <| gridToText model.squares
+            ]
         ]
 
 
@@ -267,8 +306,11 @@ h1 {
     text-align: center;
 }
 
-pre {
-    max-width: 20em;
+textarea {
+    margin-top: 1.5em;
+    font-family: monospace;
+    width: 100%;
+    height: 5em;
     border: 1px solid #de235c;
     border-radius: 4px;
     white-space: pre-wrap;
