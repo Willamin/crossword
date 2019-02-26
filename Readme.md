@@ -9,6 +9,8 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 - ability to toggle cells between black and white
 - symmetry options for painting
 - fill in letters (no rebus)
+- import/export to text
+- indicate the beginnings of clues
 
 ## Future Features
 
@@ -20,7 +22,6 @@ a set of tooling to help construct a NYT-style crossword puzzle.
     - indication of invalid word lengths (1 or 2)
 - fill in rebuses
 - encircle spaces
-- import/export to text
 - save/load to localstorage
 - randomly generate valid grid
 - randomly generate partially-filled, valid grid when given a set of fill words
