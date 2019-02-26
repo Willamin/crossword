@@ -59,8 +59,8 @@ type Position
 
 
 type Msg
-    = Blacken Int Int
-    | Empty Int Int
+    = Blacken Position
+    | Empty Position
     | ChangeSymmetry SymmetryMode
     | Write String
     | WriteEmpty
@@ -109,81 +109,79 @@ symmetry180Change x y newCell grid =
     changeCellAt (constants.width - x - 1) (constants.height - y - 1) newCell grid
 
 
-updateGrid : Int -> Int -> Cell -> Model -> Model
-updateGrid x y newCell model =
-    { model
-        | squares =
-            case newCell of
-                FillCell _ ->
-                    model.squares
-                        |> changeCellAt x y newCell
-
-                _ ->
-                    case model.symmetry of
-                        NoSymmetry ->
+updateGrid : Position -> Cell -> Model -> Model
+updateGrid pos newCell model =
+    case pos of
+        NoCoord ->
+            model
+        Coord x y ->
+            { model
+                | squares =
+                    case newCell of
+                        FillCell _ ->
                             model.squares
                                 |> changeCellAt x y newCell
 
-                        Rotate180 ->
-                            model.squares
-                                |> changeCellAt x y newCell
-                                |> symmetry180Change x y newCell
-        , over =
-            if newCell == BlackCell then
-                NoCoord
+                        _ ->
+                            case model.symmetry of
+                                NoSymmetry ->
+                                    model.squares
+                                        |> changeCellAt x y newCell
 
-            else
-                model.over
-    }
+                                Rotate180 ->
+                                    model.squares
+                                        |> changeCellAt x y newCell
+                                        |> symmetry180Change x y newCell
+                , over =
+                    if newCell == BlackCell then
+                        NoCoord
+
+                    else
+                        model.over
+            }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Blacken x y ->
-            ( model |> updateGrid x y BlackCell, Cmd.none )
+        Blacken pos ->
+            ( model |> updateGrid pos BlackCell, Cmd.none )
 
-        Empty x y ->
-            ( model |> updateGrid x y EmptyCell, Cmd.none )
+        Empty pos ->
+            ( model |> updateGrid pos EmptyCell, Cmd.none )
 
         ChangeSymmetry newSymmetry ->
             ( { model | symmetry = newSymmetry }, Cmd.none )
 
         Write string ->
-            case model.over of
-                NoCoord ->
-                    (model, Cmd.none)
-                Coord x y ->
-                    ( model |> updateGrid x y (FillCell string), Cmd.none )
+            ( model |> updateGrid model.over (FillCell string), Cmd.none )
 
-        Over coord ->
-            ( { model | over = coord }, Cmd.none )
+        Over pos ->
+            ( { model | over = pos }, Cmd.none )
 
         WriteEmpty ->
-            case model.over of
-                NoCoord ->
-                    (model, Cmd.none)
-                Coord x y ->
-                    ( model |> updateGrid x y EmptyCell, Cmd.none )
+            ( model |> updateGrid model.over EmptyCell, Cmd.none )
 
 
 cellRender : Model -> Int -> Int -> Cell -> Html Msg
 cellRender model x y cell =
+    let pos = Coord x y
+    in
     case cell of
         BlackCell ->
-            td [ class "blackCell", onClick (Empty x y), onMouseEnter (Over NoCoord) ] []
+            td [ class "blackCell", onClick (Empty pos), onMouseEnter (Over NoCoord) ] []
 
         EmptyCell ->
-            td [ class "emptyCell", onClick (Blacken x y), onMouseEnter (Over <| Coord x y) ] []
+            td [ class "emptyCell", onClick (Blacken pos), onMouseEnter (Over <| pos) ] []
 
         FillCell c ->
-            td [ class "fillCell", onMouseEnter (Over <| Coord x y) ] [ text c ]
+            td [ class "fillCell", onMouseEnter (Over <| pos) ] [ text c ]
 
 
 view model =
     div []
         [ Html.node "style" [] [ text css ]
-        , h1 [] [ text "Crossword Helper" ]
+        -- , h1 [] [ text "Crossword Helper" ]
         , table []
             (model.squares
                 |> List.indexedMap
@@ -225,7 +223,7 @@ td {
     vertical-align: center;
     text-align: center;
     box-sizing: border-box;
-    font-size: 1.2em;
+    -- font-size: 1.2em;
 }
 
 td:hover {
