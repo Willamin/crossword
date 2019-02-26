@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Events
 import Debug
-import Html exposing (Html, button, div, h1, li, table, td, text, tr, ul)
+import Html exposing (Html, button, div, h1, li, pre, table, td, text, tr, ul)
 import Html.Attributes exposing (class, classList, for, id, name, type_, value)
 import Html.Events exposing (onClick, onMouseEnter)
 import Json.Decode as Decode
@@ -209,6 +209,29 @@ cellRender model x y cell =
             td [ class "fillCell", classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ], onMouseEnter (Over <| pos) ] [ text c ]
 
 
+gridToText : List (List Cell) -> String
+gridToText grid =
+    grid
+        |> List.map
+            (\row ->
+                row
+                    |> List.map
+                        (\cell ->
+                            case cell of
+                                BlackCell ->
+                                    "!"
+
+                                EmptyCell ->
+                                    "-"
+
+                                FillCell c ->
+                                    c
+                        )
+                    |> String.concat
+            )
+        |> String.concat
+
+
 view model =
     div []
         [ Html.node "style" [] [ text css ]
@@ -226,6 +249,8 @@ view model =
             [ div [ onClick (ChangeSymmetry NoSymmetry), classList [ ( "radio", True ), ( "checked", model.symmetry == NoSymmetry ) ] ] [ text "No symmetry" ]
             , div [ onClick (ChangeSymmetry Rotate180), classList [ ( "radio", True ), ( "checked", model.symmetry == Rotate180 ) ] ] [ text "Rotational symmetry 180º" ]
             ]
+        , pre []
+            [ text <| gridToText model.squares ]
         ]
 
 
@@ -240,6 +265,16 @@ body {
 
 h1 {
     text-align: center;
+}
+
+pre {
+    max-width: 20em;
+    border: 1px solid #de235c;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #de235c;
+    background-color: #f7f7f9;
 }
 
 table, tr, td {
