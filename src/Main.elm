@@ -5,7 +5,7 @@ import Browser
 import Browser.Events
 import Debug
 import Html exposing (Html, button, div, h1, input, li, pre, table, td, text, tr, ul)
-import Html.Attributes exposing (class, classList, contenteditable, for, id, name, type_, value)
+import Html.Attributes exposing (attribute, class, classList, contenteditable, for, id, name, type_, value)
 import Html.Events exposing (onClick, onInput, onMouseEnter, onMouseLeave)
 import Json.Decode as Decode
 import Platform.Sub as Sub exposing (Sub)
@@ -209,6 +209,13 @@ cellIsAtWordHead grid pos =
                 || getCellAt x (y - 1) grid
                 == BlackCell
 
+clueNumber : List (List Cell) -> Position -> String
+clueNumber grid pos =
+    if cellIsAtWordHead grid pos then 
+        "x"
+    else
+        ""
+
 
 cellRender : Model -> Int -> Int -> Cell -> Html Msg
 cellRender model x y cell =
@@ -218,13 +225,31 @@ cellRender model x y cell =
     in
     case cell of
         BlackCell ->
-            td [ class "blackCell", onClick (Empty pos), onMouseEnter (Over NoCoord) ] []
+            td [ class "blackCell", onClick (Empty pos), onMouseEnter (Over NoCoord) ]
+                []
 
         EmptyCell ->
-            td [ class "emptyCell", classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ], onClick (Blacken pos), onMouseEnter (Over <| pos) ] []
+            td
+                [ class "emptyCell"
+                , classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ]
+                , attribute "data-number" "x"
+                , onClick (Blacken pos)
+                , onMouseEnter (Over <| pos)
+                ]
+                [ div [class "number"] [ text <| clueNumber model.squares pos ]
+                , div [] []
+                ]
 
         FillCell c ->
-            td [ class "fillCell", classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ], onMouseEnter (Over <| pos) ] [ text c ]
+            td
+                [ class "fillCell"
+                , classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ]
+                , attribute "data-number" "x"
+                , onMouseEnter (Over <| pos)
+                ]
+                [ div [class "number"] [ text <| clueNumber model.squares pos ]
+                , div [class "fill"] [ text c ]
+                ]
 
 
 gridToText : List (List Cell) -> String
@@ -328,11 +353,22 @@ td {
     width: 2.2em;
     height: 2.2em;
     cursor: pointer;
-    display: table-cell;
-    vertical-align: center;
-    text-align: center;
     box-sizing: border-box;
-    font-size: 1.2em;
+    -- font-size: 1.2em;
+    position: relative;
+}
+
+.number {
+    font-size: 0.8em;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+}
+
+.fill {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 td:hover {
