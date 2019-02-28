@@ -252,11 +252,11 @@ currentClue grid index =
                 |> List.filter
                     (\( cellNumber, cell ) ->
                         case cell of
-                            FillCell _ ->
-                                cellIsAtWordHead grid (positionFromLinePos cellNumber)
+                            BlackCell ->
+                                False
 
                             _ ->
-                                False
+                                cellIsAtWordHead grid (positionFromLinePos cellNumber)
                     )
                 |> List.indexedMap Tuple.pair
                 |> List.filter
