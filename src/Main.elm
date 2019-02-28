@@ -209,12 +209,82 @@ cellIsAtWordHead grid pos =
                 || getCellAt x (y - 1) grid
                 == BlackCell
 
+
+collapseStringifiedHelper : String -> String
+collapseStringifiedHelper input =
+    case input of
+        "!" ->
+            " "
+
+        "-" ->
+            " "
+
+        c ->
+            c
+
+
+collapseToWords : String -> String
+collapseToWords string =
+    string
+        |> String.split ""
+        |> List.map collapseStringifiedHelper
+        |> String.join ""
+        |> String.words
+        |> String.join " "
+
+
+positionFromLinePos : Int -> Position
+positionFromLinePos i =
+    if i < 0 || i > constants.width * constants.height then
+        NoCoord
+
+    else
+        Coord (i // constants.width) (i |> remainderBy constants.height)
+
+
+currentClue : List (List Cell) -> Int -> Int
+currentClue grid index =
+    let
+        foo =
+            grid
+                |> gridToList
+                |> List.indexedMap Tuple.pair
+                |> List.filter
+                    (\( cellNumber, cell ) ->
+                        case cell of
+                            FillCell _ ->
+                                cellIsAtWordHead grid (positionFromLinePos cellNumber)
+
+                            _ ->
+                                False
+                    )
+                |> List.indexedMap Tuple.pair
+                |> List.filter
+                    (\( clue, ( idx, cell ) ) ->
+                        index == idx
+                    )
+                |> List.head
+    in
+    case foo of
+        Just ( clue, ( idx, cell ) ) ->
+            clue + 1
+
+        Nothing ->
+            0
+
+
 clueNumber : List (List Cell) -> Position -> String
 clueNumber grid pos =
-    if cellIsAtWordHead grid pos then 
-        "x"
-    else
-        ""
+    case pos of
+        NoCoord ->
+            ""
+
+        Coord x y ->
+            if cellIsAtWordHead grid pos then
+                String.fromInt <| currentClue grid (x * constants.width + y)
+
+            else
+                ""
 
 
 cellRender : Model -> Int -> Int -> Cell -> Html Msg
@@ -232,11 +302,10 @@ cellRender model x y cell =
             td
                 [ class "emptyCell"
                 , classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ]
-                , attribute "data-number" "x"
                 , onClick (Blacken pos)
                 , onMouseEnter (Over <| pos)
                 ]
-                [ div [class "number"] [ text <| clueNumber model.squares pos ]
+                [ div [ class "number" ] [ text <| clueNumber model.squares pos ]
                 , div [] []
                 ]
 
@@ -244,33 +313,38 @@ cellRender model x y cell =
             td
                 [ class "fillCell"
                 , classList [ ( "greenCell", cellIsAtWordHead model.squares pos ) ]
-                , attribute "data-number" "x"
                 , onMouseEnter (Over <| pos)
                 ]
-                [ div [class "number"] [ text <| clueNumber model.squares pos ]
-                , div [class "fill"] [ text c ]
+                [ div [ class "number" ] [ text <| clueNumber model.squares pos ]
+                , div [ class "fill" ] [ text c ]
                 ]
+
+
+gridToList : List (List Cell) -> List Cell
+gridToList grid =
+    grid |> List.concat
+
+
+listToGrid : List Cell -> List (List Cell)
+listToGrid list =
+    list |> split 15
 
 
 gridToText : List (List Cell) -> String
 gridToText grid =
     grid
+        |> gridToList
         |> List.map
-            (\row ->
-                row
-                    |> List.map
-                        (\cell ->
-                            case cell of
-                                BlackCell ->
-                                    "!"
+            (\cell ->
+                case cell of
+                    BlackCell ->
+                        "!"
 
-                                EmptyCell ->
-                                    "-"
+                    EmptyCell ->
+                        "-"
 
-                                FillCell c ->
-                                    c
-                        )
-                    |> String.concat
+                    FillCell c ->
+                        c
             )
         |> String.concat
 
@@ -292,7 +366,7 @@ textToGrid string =
                     s ->
                         FillCell <| String.fromChar s
             )
-        |> split 15
+        |> listToGrid
 
 
 view model =
@@ -404,3 +478,26 @@ input[type=radio] {
     background-color: #eee;
 }
 """
+
+
+
+-- from https://stackoverflow.com/questions/31932683/transpose-in-elm-without-maybe
+
+
+transpose ll =
+    case ll of
+        [] ->
+            []
+
+        [] :: xss ->
+            transpose xss
+
+        (x :: xs) :: xss ->
+            let
+                heads =
+                    List.filterMap List.head xss
+
+                tails =
+                    List.filterMap List.tail xss
+            in
+            (x :: heads) :: transpose (xs :: tails)
