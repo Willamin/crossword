@@ -29,6 +29,8 @@ type Cell
 
 type SymmetryMode
     = Rotate180
+    | MirrorHorizontally
+    | MirrorVertically
     | NoSymmetry
 
 
@@ -137,6 +139,16 @@ symmetry180Change x y newCell grid =
     changeCellAt (constants.width - x - 1) (constants.height - y - 1) newCell grid
 
 
+symmetryMirrorHorizontalChange : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
+symmetryMirrorHorizontalChange x y newCell grid =
+    changeCellAt (constants.width - x - 1) y newCell grid
+
+
+symmetryMirrorVerticalChange : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
+symmetryMirrorVerticalChange x y newCell grid =
+    changeCellAt x (constants.height - y - 1) newCell grid
+
+
 updateGrid : Position -> Cell -> Model -> Model
 updateGrid pos newCell model =
     case pos of
@@ -161,6 +173,16 @@ updateGrid pos newCell model =
                                     model.squares
                                         |> changeCellAt x y newCell
                                         |> symmetry180Change x y newCell
+
+                                MirrorHorizontally ->
+                                    model.squares
+                                        |> changeCellAt x y newCell
+                                        |> symmetryMirrorHorizontalChange x y newCell
+
+                                MirrorVertically ->
+                                    model.squares
+                                        |> changeCellAt x y newCell
+                                        |> symmetryMirrorVerticalChange x y newCell
                 , over =
                     if newCell == BlackCell then
                         NoCoord
@@ -422,6 +444,8 @@ view model =
         , radioBoxes
             [ ( ChangeSymmetry NoSymmetry, model.symmetry == NoSymmetry, "No symmetry" )
             , ( ChangeSymmetry Rotate180, model.symmetry == Rotate180, "Rotational symmetry 180º" )
+            , ( ChangeSymmetry MirrorHorizontally, model.symmetry == MirrorHorizontally, "Mirror Horizontally" )
+            , ( ChangeSymmetry MirrorVertically, model.symmetry == MirrorVertically, "Mirror Vertically" )
             ]
         , radioBoxes
             [ ( ChangeHighlightClueStarts False, model.highlightClueStarts == False, "No highlights" )
