@@ -7,10 +7,11 @@ a set of tooling to help construct a NYT-style crossword puzzle.
 ## Features
 
 - ability to toggle cells between black and white
-- symmetry options for painting
+- symmetry options for painting (180º, horizontal, vertical, none)
 - fill in letters (no rebus)
 - import/export to text
 - indicate the beginnings of clues
+- indicate clue numbers
 
 ## Future Features
 
