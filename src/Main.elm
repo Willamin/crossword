@@ -60,7 +60,7 @@ init _ =
     ( { squares = emptyGrid
       , symmetry = Rotate180
       , over = NoCoord
-      , highlightClueStarts = True
+      , highlightClueStarts = False
       , indicateClueNumbers = True
       }
     , Cmd.none
