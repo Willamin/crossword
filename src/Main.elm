@@ -4,7 +4,7 @@ import Array
 import Browser
 import Browser.Events
 import Debug
-import Html exposing (Html, button, div, h1, input, li, pre, table, td, text, tr, ul)
+import Html exposing (Html, button, div, h1, input, label, li, pre, table, td, text, tr, ul)
 import Html.Attributes exposing (attribute, class, classList, contenteditable, for, id, name, type_, value)
 import Html.Events exposing (onClick, onInput, onMouseEnter, onMouseLeave)
 import Json.Decode as Decode
@@ -419,7 +419,7 @@ textToGrid string =
 
 radioBoxes : List ( Msg, Bool, String ) -> Html Msg
 radioBoxes options =
-    div []
+    div [ class "radioGroup" ]
         (options
             |> List.map
                 (\( msg, checked, label ) ->
@@ -441,19 +441,24 @@ view model =
                             (row |> List.indexedMap (cellRender model x))
                     )
             )
-        , radioBoxes
-            [ ( ChangeSymmetry NoSymmetry, model.symmetry == NoSymmetry, "No symmetry" )
-            , ( ChangeSymmetry Rotate180, model.symmetry == Rotate180, "Rotational symmetry 180º" )
-            , ( ChangeSymmetry HorizontalSymmetry, model.symmetry == HorizontalSymmetry, "Horizontal Symmetry" )
-            , ( ChangeSymmetry VerticalSymmetry, model.symmetry == VerticalSymmetry, "Vertical Symmetry" )
-            ]
-        , radioBoxes
-            [ ( ChangeHighlightClueStarts False, model.highlightClueStarts == False, "No highlights" )
-            , ( ChangeHighlightClueStarts True, model.highlightClueStarts == True, "Highlight clue starts" )
-            ]
-        , radioBoxes
-            [ ( ChangeClueNumberIndication False, model.indicateClueNumbers == False, "Don't indicate clue numbers" )
-            , ( ChangeClueNumberIndication True, model.indicateClueNumbers == True, "Indicate clue numbers" )
+        , div [ class "optionGroup" ]
+            [ div [ class "radioLabel" ] [ text "Symmetry" ]
+            , radioBoxes
+                [ ( ChangeSymmetry NoSymmetry, model.symmetry == NoSymmetry, "No symmetry" )
+                , ( ChangeSymmetry Rotate180, model.symmetry == Rotate180, " 180º Rotational" )
+                , ( ChangeSymmetry HorizontalSymmetry, model.symmetry == HorizontalSymmetry, "Horizontal" )
+                , ( ChangeSymmetry VerticalSymmetry, model.symmetry == VerticalSymmetry, "Vertical" )
+                ]
+            , div [ class "radioLabel" ] [ text "Highlighting" ]
+            , radioBoxes
+                [ ( ChangeHighlightClueStarts False, model.highlightClueStarts == False, "Don't highlight clue starts" )
+                , ( ChangeHighlightClueStarts True, model.highlightClueStarts == True, "Highlight clue starts" )
+                ]
+            , div [ class "radioLabel" ] [ text "Clue Numbers" ]
+            , radioBoxes
+                [ ( ChangeClueNumberIndication False, model.indicateClueNumbers == False, "Don't indicate clue numbers" )
+                , ( ChangeClueNumberIndication True, model.indicateClueNumbers == True, "Indicate clue numbers" )
+                ]
             ]
         , Html.textarea [ onInput ParsePuzzle ]
             [ text <| gridToText model.squares
@@ -497,7 +502,7 @@ td {
     height: 2.2em;
     cursor: pointer;
     box-sizing: border-box;
-    -- font-size: 1.2em;
+    font-size: 1.2em;
     position: relative;
 }
 
@@ -530,21 +535,41 @@ td:hover {
     background-color: #fdd;
 }
 
-input[type=radio] {
-    display: none;
+.optionGroup {
+    display: grid;
+    grid-template-areas: "label options";
 }
 
 .radio {
     cursor: pointer;
-    display: inline-block;
     padding: 0.5em;
-    margin-top: 1em;
-    margin-right: 1em;
     border: 1px solid #444;
+    margin-left: 1em;
+}
+
+.radio:nth-child(1) {
+    margin-left: 0;
 }
 
 .radio.checked {
     background-color: #eee;
+}
+
+.radioGroup {
+    grid-area: "options";
+    margin: 1em;
+    display: flex;
+    flex-direction: row;
+}
+
+.radioLabel {
+    grid-area: "label";
+    margin: 1em 0;
+    padding: 0 1em;
+    border-right: 1px solid #444;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }
 """
 
