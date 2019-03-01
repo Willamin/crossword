@@ -32,16 +32,12 @@ type SymmetryMode
     | NoSymmetry
 
 
-type HighlightMode
-    = NoHighlight
-    | ClueStartHighlight
-
-
 type alias Model =
     { squares : List (List Cell)
     , symmetry : SymmetryMode
     , over : Position
-    , highlight : HighlightMode
+    , highlightClueStarts : Bool
+    , indicateClueNumbers : Bool
     }
 
 
@@ -64,7 +60,8 @@ init _ =
     ( { squares = emptyGrid
       , symmetry = Rotate180
       , over = NoCoord
-      , highlight = ClueStartHighlight
+      , highlightClueStarts = True
+      , indicateClueNumbers = True
       }
     , Cmd.none
     )
@@ -83,7 +80,8 @@ type Msg
     | WriteEmpty
     | Over Position
     | ParsePuzzle String
-    | ChangeHighlight HighlightMode
+    | ChangeHighlightClueStarts Bool
+    | ChangeClueNumberIndication Bool
 
 
 keyDecoder : Decode.Decoder Msg
@@ -196,8 +194,11 @@ update msg model =
         ParsePuzzle string ->
             ( { model | squares = textToGrid string }, Cmd.none )
 
-        ChangeHighlight newHighlight ->
-            ( { model | highlight = newHighlight }, Cmd.none )
+        ChangeHighlightClueStarts newHighlight ->
+            ( { model | highlightClueStarts = newHighlight }, Cmd.none )
+
+        ChangeClueNumberIndication newIndication ->
+            ( { model | indicateClueNumbers = newIndication }, Cmd.none )
 
 
 
@@ -312,21 +313,35 @@ cellRender model x y cell =
         EmptyCell ->
             td
                 [ class "emptyCell"
-                , classList [ ( "greenCell", model.highlight == ClueStartHighlight && cellIsAtWordHead model.squares pos ) ]
+                , classList [ ( "greenCell", model.highlightClueStarts && cellIsAtWordHead model.squares pos ) ]
                 , onClick (Blacken pos)
                 , onMouseEnter (Over <| pos)
                 ]
-                [ div [ class "number" ] [ text <| clueNumber model.squares pos ]
+                [ div [ class "number" ]
+                    [ text <|
+                        if model.indicateClueNumbers then
+                            clueNumber model.squares pos
+
+                        else
+                            ""
+                    ]
                 , div [] []
                 ]
 
         FillCell c ->
             td
                 [ class "fillCell"
-                , classList [ ( "greenCell", model.highlight == ClueStartHighlight && cellIsAtWordHead model.squares pos ) ]
+                , classList [ ( "greenCell", model.highlightClueStarts && cellIsAtWordHead model.squares pos ) ]
                 , onMouseEnter (Over <| pos)
                 ]
-                [ div [ class "number" ] [ text <| clueNumber model.squares pos ]
+                [ div [ class "number" ]
+                    [ text <|
+                        if model.indicateClueNumbers then
+                            clueNumber model.squares pos
+
+                        else
+                            ""
+                    ]
                 , div [ class "fill" ] [ text c ]
                 ]
 
@@ -380,6 +395,17 @@ textToGrid string =
         |> listToGrid
 
 
+radioBoxes : List ( Msg, Bool, String ) -> Html Msg
+radioBoxes options =
+    div []
+        (options
+            |> List.map
+                (\( msg, checked, label ) ->
+                    div [ onClick msg, classList [ ( "radio", True ), ( "checked", checked ) ] ] [ text label ]
+                )
+        )
+
+
 view model =
     div []
         [ Html.node "style" [] [ text css ]
@@ -393,13 +419,17 @@ view model =
                             (row |> List.indexedMap (cellRender model x))
                     )
             )
-        , div []
-            [ div [ onClick (ChangeSymmetry NoSymmetry), classList [ ( "radio", True ), ( "checked", model.symmetry == NoSymmetry ) ] ] [ text "No symmetry" ]
-            , div [ onClick (ChangeSymmetry Rotate180), classList [ ( "radio", True ), ( "checked", model.symmetry == Rotate180 ) ] ] [ text "Rotational symmetry 180º" ]
+        , radioBoxes
+            [ ( ChangeSymmetry NoSymmetry, model.symmetry == NoSymmetry, "No symmetry" )
+            , ( ChangeSymmetry Rotate180, model.symmetry == Rotate180, "Rotational symmetry 180º" )
             ]
-        , div []
-            [ div [ onClick (ChangeHighlight NoHighlight), classList [ ( "radio", True ), ( "checked", model.highlight == NoHighlight ) ] ] [ text "No highlights" ]
-            , div [ onClick (ChangeHighlight ClueStartHighlight), classList [ ( "radio", True ), ( "checked", model.highlight == ClueStartHighlight ) ] ] [ text "Highlight clue starts" ]
+        , radioBoxes
+            [ ( ChangeHighlightClueStarts False, model.highlightClueStarts == False, "No highlights" )
+            , ( ChangeHighlightClueStarts True, model.highlightClueStarts == True, "Highlight clue starts" )
+            ]
+        , radioBoxes
+            [ ( ChangeClueNumberIndication False, model.indicateClueNumbers == False, "Don't indicate clue numbers" )
+            , ( ChangeClueNumberIndication True, model.indicateClueNumbers == True, "Indicate clue numbers" )
             ]
         , Html.textarea [ onInput ParsePuzzle ]
             [ text <| gridToText model.squares
