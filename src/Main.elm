@@ -29,8 +29,8 @@ type Cell
 
 type SymmetryMode
     = Rotate180
-    | MirrorHorizontally
-    | MirrorVertically
+    | HorizontalSymmetry
+    | VerticalSymmetry
     | NoSymmetry
 
 
@@ -139,13 +139,13 @@ symmetry180Change x y newCell grid =
     changeCellAt (constants.width - x - 1) (constants.height - y - 1) newCell grid
 
 
-symmetryMirrorHorizontalChange : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
-symmetryMirrorHorizontalChange x y newCell grid =
+symmetryHorizontalChange : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
+symmetryHorizontalChange x y newCell grid =
     changeCellAt (constants.width - x - 1) y newCell grid
 
 
-symmetryMirrorVerticalChange : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
-symmetryMirrorVerticalChange x y newCell grid =
+symmetryVerticalChange : Int -> Int -> Cell -> List (List Cell) -> List (List Cell)
+symmetryVerticalChange x y newCell grid =
     changeCellAt x (constants.height - y - 1) newCell grid
 
 
@@ -174,15 +174,15 @@ updateGrid pos newCell model =
                                         |> changeCellAt x y newCell
                                         |> symmetry180Change x y newCell
 
-                                MirrorHorizontally ->
+                                HorizontalSymmetry ->
                                     model.squares
                                         |> changeCellAt x y newCell
-                                        |> symmetryMirrorHorizontalChange x y newCell
+                                        |> symmetryHorizontalChange x y newCell
 
-                                MirrorVertically ->
+                                VerticalSymmetry ->
                                     model.squares
                                         |> changeCellAt x y newCell
-                                        |> symmetryMirrorVerticalChange x y newCell
+                                        |> symmetryVerticalChange x y newCell
                 , over =
                     if newCell == BlackCell then
                         NoCoord
@@ -444,8 +444,8 @@ view model =
         , radioBoxes
             [ ( ChangeSymmetry NoSymmetry, model.symmetry == NoSymmetry, "No symmetry" )
             , ( ChangeSymmetry Rotate180, model.symmetry == Rotate180, "Rotational symmetry 180º" )
-            , ( ChangeSymmetry MirrorHorizontally, model.symmetry == MirrorHorizontally, "Mirror Horizontally" )
-            , ( ChangeSymmetry MirrorVertically, model.symmetry == MirrorVertically, "Mirror Vertically" )
+            , ( ChangeSymmetry HorizontalSymmetry, model.symmetry == HorizontalSymmetry, "Horizontal Symmetry" )
+            , ( ChangeSymmetry VerticalSymmetry, model.symmetry == VerticalSymmetry, "Vertical Symmetry" )
             ]
         , radioBoxes
             [ ( ChangeHighlightClueStarts False, model.highlightClueStarts == False, "No highlights" )
