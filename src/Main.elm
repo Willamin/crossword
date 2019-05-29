@@ -40,6 +40,7 @@ type alias Model =
     , over : Position
     , highlightClueStarts : Bool
     , indicateClueNumbers : Bool
+    , puzzleTextVisibility : Bool
     }
 
 
@@ -64,6 +65,7 @@ init _ =
       , over = NoCoord
       , highlightClueStarts = False
       , indicateClueNumbers = True
+      , puzzleTextVisibility = False
       }
     , Cmd.none
     )
@@ -84,6 +86,7 @@ type Msg
     | ParsePuzzle String
     | ChangeHighlightClueStarts Bool
     | ChangeClueNumberIndication Bool
+    | ChangePuzzleTextVisibility Bool
 
 
 keyDecoder : Decode.Decoder Msg
@@ -221,6 +224,9 @@ update msg model =
 
         ChangeClueNumberIndication newIndication ->
             ( { model | indicateClueNumbers = newIndication }, Cmd.none )
+
+        ChangePuzzleTextVisibility newVisibility ->
+            ( { model | puzzleTextVisibility = newVisibility }, Cmd.none )
 
 
 
@@ -459,11 +465,28 @@ view model =
                 [ ( ChangeClueNumberIndication False, model.indicateClueNumbers == False, "Don't indicate clue numbers" )
                 , ( ChangeClueNumberIndication True, model.indicateClueNumbers == True, "Indicate clue numbers" )
                 ]
+            , div [ class "radioLabel" ] [ text "Puzzle-as-Text" ]
+            , radioBoxes
+                [ ( ChangePuzzleTextVisibility False, model.puzzleTextVisibility == False, "Hide the puzzle-as-text" )
+                , ( ChangePuzzleTextVisibility True, model.puzzleTextVisibility == True, "Show the puzzle-as-text" )
+                ]
             ]
-        , Html.textarea [ onInput ParsePuzzle ]
+        , Html.textarea
+            [ onInput ParsePuzzle
+            , class <| visibilityClass <| model.puzzleTextVisibility
+            ]
             [ text <| gridToText model.squares
             ]
         ]
+
+
+visibilityClass : Bool -> String
+visibilityClass b =
+    if b then
+        "visible"
+
+    else
+        "hidden"
 
 
 css : String
@@ -570,6 +593,14 @@ td:hover {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
 }
 """
 
