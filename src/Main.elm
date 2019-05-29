@@ -61,10 +61,10 @@ emptyGrid =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { squares = emptyGrid
-      , symmetry = Rotate180
+      , symmetry = NoSymmetry
       , over = NoCoord
       , highlightClueStarts = False
-      , indicateClueNumbers = True
+      , indicateClueNumbers = False
       , puzzleTextVisibility = False
       }
     , Cmd.none
