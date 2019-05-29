@@ -167,25 +167,30 @@ updateGrid pos newCell model =
                                 |> changeCellAt x y newCell
 
                         _ ->
-                            case model.symmetry of
-                                NoSymmetry ->
-                                    model.squares
-                                        |> changeCellAt x y newCell
+                            case getCellAt x y model.squares of
+                                FillCell _ ->
+                                    model.squares |> changeCellAt x y newCell
 
-                                Rotate180 ->
-                                    model.squares
-                                        |> changeCellAt x y newCell
-                                        |> symmetry180Change x y newCell
+                                _ ->
+                                    case model.symmetry of
+                                        NoSymmetry ->
+                                            model.squares
+                                                |> changeCellAt x y newCell
 
-                                HorizontalSymmetry ->
-                                    model.squares
-                                        |> changeCellAt x y newCell
-                                        |> symmetryHorizontalChange x y newCell
+                                        Rotate180 ->
+                                            model.squares
+                                                |> changeCellAt x y newCell
+                                                |> symmetry180Change x y newCell
 
-                                VerticalSymmetry ->
-                                    model.squares
-                                        |> changeCellAt x y newCell
-                                        |> symmetryVerticalChange x y newCell
+                                        HorizontalSymmetry ->
+                                            model.squares
+                                                |> changeCellAt x y newCell
+                                                |> symmetryHorizontalChange x y newCell
+
+                                        VerticalSymmetry ->
+                                            model.squares
+                                                |> changeCellAt x y newCell
+                                                |> symmetryVerticalChange x y newCell
                 , over =
                     if newCell == BlackCell then
                         NoCoord
